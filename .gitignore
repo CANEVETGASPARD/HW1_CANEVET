@@ -1,2 +1,5 @@
 #ignoring datasets
-datasets/
+A/input
+A/output
+A/target
+A/.idea
