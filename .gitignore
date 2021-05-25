@@ -1,5 +1,6 @@
 #ignoring datasets
 A/input
-A/output
+A/output*
 A/target
 A/.idea
+

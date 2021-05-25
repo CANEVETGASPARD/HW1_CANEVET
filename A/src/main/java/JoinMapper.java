@@ -1,3 +1,6 @@
+import model.AbstractCustomerEntity;
+import model.Customer;
+import model.Orders;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;

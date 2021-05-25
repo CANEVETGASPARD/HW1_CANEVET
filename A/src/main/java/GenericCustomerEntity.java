@@ -1,3 +1,5 @@
+import model.Customer;
+import model.Orders;
 import org.apache.hadoop.io.GenericWritable;
 import org.apache.hadoop.io.Writable;
 

@@ -1,8 +1,10 @@
+package model;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class CustomerOrdersVO extends AbstractCustomerEntity{
+public class CustomerOrdersVO extends AbstractCustomerEntity {
     private String name;
     private String address;
     private Double priceAvg;

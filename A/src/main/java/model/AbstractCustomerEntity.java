@@ -1,3 +1,5 @@
+package model;
+
 import org.apache.hadoop.io.WritableComparable;
 
 public abstract class AbstractCustomerEntity implements WritableComparable<AbstractCustomerEntity>{

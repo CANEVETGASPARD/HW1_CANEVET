@@ -1,12 +1,15 @@
+import model.AbstractCustomerEntity;
+import model.Customer;
+import model.CustomerOrdersVO;
+import model.Orders;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.Objects;
 
-public class JoinReducer extends Reducer<IntWritable, GenericCustomerEntity, NullWritable, CustomerOrdersVO> {
+public class JoinReducerTaskI extends Reducer<IntWritable, GenericCustomerEntity, NullWritable, CustomerOrdersVO> {
 
     @Override
     protected void reduce(IntWritable key,
