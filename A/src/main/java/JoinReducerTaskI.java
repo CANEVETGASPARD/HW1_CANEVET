@@ -29,6 +29,7 @@ public class JoinReducerTaskI extends Reducer<IntWritable, GenericCustomerEntity
                 orders = (Orders) f;
                 LocalDate ordersDate = LocalDate.parse(orders.getOrderDate());
                 if(ordersDate.isAfter(LocalDate.parse("1996-01-01"))){
+                    System.out.println(key);
                     num += Double.parseDouble(orders.getPrice());
                     denom ++;
                 }

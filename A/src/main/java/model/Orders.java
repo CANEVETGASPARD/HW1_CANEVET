@@ -5,7 +5,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public class Orders extends AbstractCustomerEntity {
-    private String custkey;
+    private String orderkey;
     private String orderstatus;
     private String price;
     private String orderdate;
@@ -14,9 +14,9 @@ public class Orders extends AbstractCustomerEntity {
     private String shippriority;
     private String comment;
 
-    public Orders(int id, String custkey, String orderstatus, String price, String orderdate, String orderpriority, String clerk, String shippriority, String comment) {
+    public Orders(String orderkey, int id,String orderstatus, String price, String orderdate, String orderpriority, String clerk, String shippriority, String comment) {
         super(id);
-        this.custkey = custkey;
+        this.orderkey = orderkey;
         this.orderstatus = orderstatus;
         this.price = price;
         this.orderdate = orderdate;
@@ -38,7 +38,7 @@ public class Orders extends AbstractCustomerEntity {
     @Override
     public void write(DataOutput dataOutput) throws IOException {
         dataOutput.writeInt(id);
-        dataOutput.writeUTF(custkey);
+        dataOutput.writeUTF(orderkey);
         dataOutput.writeUTF(orderstatus);
         dataOutput.writeUTF(price);
         dataOutput.writeUTF(orderdate);
@@ -51,7 +51,7 @@ public class Orders extends AbstractCustomerEntity {
     @Override
     public void readFields(DataInput dataInput) throws IOException {
         id = dataInput.readInt();
-        custkey = dataInput.readUTF();
+        orderkey = dataInput.readUTF();
         orderstatus = dataInput.readUTF();
         price = dataInput.readUTF();
         orderdate = dataInput.readUTF();
@@ -71,6 +71,6 @@ public class Orders extends AbstractCustomerEntity {
     }
 
     public String toString() {
-        return id + "," + custkey + "," + orderstatus + "," + price + "," + orderdate + "," + orderpriority + "," + clerk + "," + shippriority + "," + comment;
+        return id + "," + orderkey + "," + orderstatus + "," + price + "," + orderdate + "," + orderpriority + "," + clerk + "," + shippriority + "," + comment;
     }
 }
