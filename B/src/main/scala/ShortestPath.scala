@@ -6,11 +6,19 @@ object ShortestPath {
 
   def main(args: Array[String]) {
 
-    val conf = new SparkConf().setAppName("shortestPath").setMaster("local[2]").set("spark.executor.memory", "5g")
+    val conf = new SparkConf().setAppName("shortestPath").setMaster("local[2]")
     val sc = new SparkContext(conf)
-    val initial_vertice = "17038"
 
-    val file = sc.textFile("input/ca-GrQc.txt")
+    //problem variables
+    val initial_vertice = "17038"
+    var clusterFullyExplored = false
+    val INFINITE = 5243 // max possible length path 5242 => 5243 == INFINITE
+
+    val inputPath = args(0) + "/ca-GrQc.txt"
+    val outputPath = args(1) + "/task_II"
+
+    //load and split file
+    val file = sc.textFile(inputPath)
     val groupedFile = file.groupBy(line => {
       val lineArray = line.split("\t")
       if (lineArray.length == 2) {
@@ -22,37 +30,33 @@ object ShortestPath {
       if(line._1 == initial_vertice) {
         (line._1,0,"UNDISCOVERED",line._2, initial_vertice)
       } else{
-        (line._1,5243,"UNDISCOVERED",line._2,"") // max possible length path 5242 => 5243 == INFINITE
+        (line._1,INFINITE,"UNDISCOVERED",line._2,"")
       }
     }) //there we grouped all values. thus we have tuples that look like (source, weight, State -> discover of not,
     // CompactBuffer made tuple of all neigbours (source,neigbours), path)
 
     var i =0 // variable init for test
-    while (AdjencyList.filter(row => row._3 == "UNDISCOVERED").count() != 0 && i < 5){ //we stop the loop earlier in order to test our algorithm
-      //otherwise we stop the loop when all vertice are discover. Due to the fact that all path weight are equal to 1
+    var previousUndiscoverNumber = AdjencyList.filter(row => row._3 == "UNDISCOVERED").count()
+    while (AdjencyList.filter(row => row._3 == "UNDISCOVERED").count() != 0 && !clusterFullyExplored){
+      //We stop the loop when all vertices from the cluster are discover. Due to the fact that all path weight are equal to 1
       //when a vertice is discover the algorithm took the shortest path
-
-      //Debug variables
-      i += 1
-      print(AdjencyList.filter(row => row._3 == "UNDISCOVERED").count())
 
       //RDD made of reached variables that are reach but their state is not yet init to DISCOVER
       // these variables are the next sources in our algorithm.
       //during the first init the RDD is made of one row with the initial vertice as source
       //next step it is made of all neighbours of the initial vertice and so on
-      val AdjencyListDiscovered = AdjencyList.filter(row => row._3 == "UNDISCOVERED" && row._2 < 5243)
+      val AdjencyListDiscovered = AdjencyList.filter(row => row._3 == "UNDISCOVERED" && row._2 < INFINITE)
 
       AdjencyList = AdjencyList.map(row => {
-        if (row._3 == "UNDISCOVERED" && row._2 < 5243){
+        if (row._3 == "UNDISCOVERED" && row._2 < INFINITE){
           (row._1,row._2,"DISCOVERED",row._4,row._5)
         } else {
           row
         }
-      }) //we change the state of reached vertice to DISCVOER
+      }) //we change the state of reached vertice to DISCOVER
 
 
       for (source <- AdjencyListDiscovered.collect()){ //for every source
-
 
         val neighboursListBuffer = new ListBuffer[String]()
         val neighbours = source._4 //list of neighbours
@@ -76,9 +80,18 @@ object ShortestPath {
             (row._1,row._2,row._3,row._4,row._5) //we do nothing
           }
         })
-        AdjencyList.first() //I try this to curb the computing time oh the algorithm
       }
-      AdjencyList.foreach(row => if(row._3=="DISCOVERED"){println(row)})
+      AdjencyList.cache().foreach(row => if(row._3=="DISCOVERED"){println(row)}) //we cache and print output to debug
+
+      //statement that make sure there are still undiscover vertices in the cluster
+      var currentUndiscoverNumber = AdjencyList.filter(row => row._3 == "UNDISCOVERED").count()
+      if (currentUndiscoverNumber == previousUndiscoverNumber){
+        clusterFullyExplored = true
+      }
+      previousUndiscoverNumber = currentUndiscoverNumber
+
     }
+    val output = AdjencyList.filter(row => row._2 < INFINITE).map(row => row._5 + "->" + row._1 + ": " + row._2)
+    output.coalesce(1).saveAsTextFile(outputPath)
   }
 }
