@@ -1,6 +1,5 @@
 import org.apache.flink.api.scala._
-import org.apache.flink.util.Collector
-
+import org.apache.flink.api.java.io.CsvOutputFormat
 
 object ShortestPath {
     def main(args: Array[String]): Unit = {
@@ -24,7 +23,7 @@ object ShortestPath {
 
       //there we map all values. thus we have tuples that look like (source, weight, State -> discover of not,
       // String made of all neigbours, path)
-      val solutionSet = groupedFile.map(row => {
+      var solutionSet = groupedFile.map(row => {
         if (row._1 == initial_vertice) {
           (row._1,0,"UNDISCOVERED",row._2,initial_vertice)
         } else {
@@ -33,7 +32,8 @@ object ShortestPath {
       })
 
       // first workset is made of initial vertice tuple
-      val initialWorkSet = solutionSet.filter(row => row._2<INFINITE && row._3 == "UNDISCOVERED")
+      var workSet = solutionSet.filter(row => row._2<INFINITE && row._3 == "UNDISCOVERED")
+
 
       // step function
       def propagateThroughMaze(s:DataSet[(String,Int,String,String,String)],ws:DataSet[(String,Int,String,String,String)]) : (DataSet[(String,Int,String,String,String)],DataSet[(String,Int,String,String,String)])= {
@@ -71,7 +71,21 @@ object ShortestPath {
         //return new solutionSet and new WorkSet
         (newS,newWs)
       }
-      //apply iteration delta function with propagateThroughMaze as step function
-      val output = solutionSet.iterateDelta(initialWorkSet,maxIteration,Array(0)) {(solution,workset) => propagateThroughMaze(solution,workset)}
+
+      // I have made my own iteration loop because I can't use the proper one
+      var iteration = 0
+      while (workSet.count() != 0 && iteration <= maxIteration) {
+        print("iteration: " + iteration +"\n")
+        val nextStep = propagateThroughMaze(solutionSet,workSet)
+        solutionSet = nextStep._1
+        workSet = nextStep._2
+        iteration += 1
+      }
+
+      val FinalsolutionSet = solutionSet.filter(row => row._2 < INFINITE).map(row => row._5 +  ": " + row._2).setParallelism(1)
+      FinalsolutionSet.writeAsText(outputPath)
+      env.execute()
+      //apply iteration delta function with propagateThroughMaze as step function do not work
+      //val output = solutionSet.iterateDelta(initialWorkSet,maxIteration,keyFields = Array(0))(stepFunction = {(solution,workset) => propagateThroughMaze(solution,workset)})
     }
 }
