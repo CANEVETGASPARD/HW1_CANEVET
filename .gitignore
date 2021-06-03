@@ -15,3 +15,7 @@ C/input/
 C/output/
 C/project/
 C/target/
+D/input
+D/output*
+D/target
+D/.idea
