@@ -11,7 +11,7 @@ public class Main {
      *
      * @param args provide path to the data file.
      */
-    public static void main(String[] args) throws IllegalAccessException {
+    public static void main(String[] args) throws Exception{
         if (args.length == 0) {
             throw new IllegalArgumentException("Please provide the data file path in the first argument.");
         }
@@ -20,5 +20,6 @@ public class Main {
 
         statistics.writeAvertedGoalEvents();
         statistics.writeHighestAvgDistanceCovered();
+
     }
 }

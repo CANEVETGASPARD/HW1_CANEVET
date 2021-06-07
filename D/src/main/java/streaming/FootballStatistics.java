@@ -24,12 +24,12 @@ public interface FootballStatistics {
      * write the events that show that the football almost came near goal (within the penalty area),
      * but the football was kicked out of the penalty area by a player of opposite team
      */
-    void writeAvertedGoalEvents();
+    void writeAvertedGoalEvents() throws Exception;
 
     /**
      * Highest average distance of player A1 (of Team A) ran in every 5 minutes duration. You can skip 1 minute duration between every two durations.
      */
-    void writeHighestAvgDistanceCovered();
+    void writeHighestAvgDistanceCovered() throws Exception;
 
     /**
      * Creates {@link StreamExecutionEnvironment} and {@link DataStream} before each streaming task
