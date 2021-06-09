@@ -3,6 +3,7 @@ import org.apache.flink.api.java.io.CsvOutputFormat
 
 object ShortestPath {
     def main(args: Array[String]): Unit = {
+      val t0 = System.nanoTime()
       val env = ExecutionEnvironment.getExecutionEnvironment
 
       //problem variables
@@ -10,7 +11,7 @@ object ShortestPath {
       val maxIteration = 15
       val INFINITE = 5243 // max possible length path 5242 => 5243 == INFINITE
       val inputPath = args(0) + "/ca-GrQc.txt"
-      val outputPath = args(1) + "/task_I"
+      val outputPath = args(1) + "/output_taskI"
 
       //load file into dataset
       val textFile = env.readTextFile(inputPath)
@@ -85,6 +86,9 @@ object ShortestPath {
       val FinalsolutionSet = solutionSet.filter(row => row._2 < INFINITE).map(row => row._5 +  ": " + row._2).setParallelism(1)
       FinalsolutionSet.writeAsText(outputPath)
       env.execute()
+      val t1 = System.nanoTime()
+
+      print("execution time = " + (t1-t0) + "ns")
       //apply iteration delta function with propagateThroughMaze as step function do not work
       //val output = solutionSet.iterateDelta(initialWorkSet,maxIteration,keyFields = Array(0))(stepFunction = {(solution,workset) => propagateThroughMaze(solution,workset)})
     }
