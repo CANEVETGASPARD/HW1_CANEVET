@@ -5,7 +5,7 @@ import scala.collection.mutable.ListBuffer
 object ShortestPath {
 
   def main(args: Array[String]) {
-
+    val t0 = System.nanoTime()
     val conf = new SparkConf().setAppName("shortestPath").setMaster("local[2]")
     val sc = new SparkContext(conf)
 
@@ -93,5 +93,7 @@ object ShortestPath {
     }
     val output = AdjencyList.filter(row => row._2 < INFINITE).map(row => row._5 + "->" + row._1 + ": " + row._2)
     output.coalesce(1).saveAsTextFile(outputPath)
+    val t1 = System.nanoTime()
+    print("execution time = " + (t1-t0) + "ns")
   }
 }
