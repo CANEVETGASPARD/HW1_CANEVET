@@ -54,11 +54,11 @@ public class FootballStatisticsImpl implements FootballStatistics {
 
 
     //apply function to display information of the window
-    public class WindowDisplay implements AllWindowFunction<Tuple3<Long, BigInteger, Integer>, String, TimeWindow> {
+    public class WindowDisplay implements AllWindowFunction<Tuple4<Long, BigInteger, Integer,Integer>, String, TimeWindow> {
         @Override
-        public void apply(TimeWindow window, Iterable<Tuple3<Long, BigInteger, Integer>> input, Collector<String> out) {
+        public void apply(TimeWindow window, Iterable<Tuple4<Long, BigInteger, Integer,Integer>> input, Collector<String> out) {
             long count = 0;
-            for (Tuple3<Long, BigInteger, Integer> in: input) {
+            for (Tuple4<Long, BigInteger, Integer,Integer> in: input) {
                 count++;
             }
             out.collect("Window: " + window + "count: " + count);
@@ -96,7 +96,7 @@ public class FootballStatisticsImpl implements FootballStatistics {
 
     }
     /**
-     * Highest average distance of player A1 (of Team A) ran in every 5 minutes duration. You can skip 1 minute duration between every two durations.
+     * Highest average distance of player A1 (of Team A) ran in every 5 minutes duration. You can skip output_taskI_part1 minute duration between every two durations.
      */
     @Override
     public void writeHighestAvgDistanceCovered() throws Exception{
@@ -113,11 +113,11 @@ public class FootballStatisticsImpl implements FootballStatistics {
         DataStream<Tuple4<Long, BigInteger, Integer,Integer>> filteredEventWithTimestamp = filteredEvent.assignTimestampsAndWatermarks(WatermarkStrategy.<Tuple4<Long, BigInteger, Integer,Integer>>forMonotonousTimestamps().withTimestampAssigner((event, ts) -> event.f1.longValue()));
 
         // if we want to see the number of element in the window
-        //filteredEventWithTimestamp.windowAll(SlidingEventTimeWindows.of(Time.seconds(5*1000000000), Time.seconds(1000000000))).apply(new MyWindowFunction()).print();
+        //filteredEventWithTimestamp.windowAll(SlidingEventTimeWindows.of(Time.minutes(5*1000000000), Time.minutes(1000000000))).apply(new WindowDisplay()).print();
 
         //using sliding window, important to be aware that out timestamp are in picosecond and not milisecond we have to multiply by 1000000000
         //finally we apply our slinding apply average and key among the last element in order to output the max average distance in a five seconds window
-        DataStream<Tuple4<BigInteger,BigInteger,Double,String>> MaxAverageDistanceStream = filteredEventWithTimestamp.windowAll(SlidingEventTimeWindows.of(Time.seconds(5*1000000000), Time.seconds(1000000000))).apply(new WindowAverage()).keyBy(3).maxBy(2).setParallelism(1);
+        DataStream<Tuple4<BigInteger,BigInteger,Double,String>> MaxAverageDistanceStream = filteredEventWithTimestamp.windowAll(SlidingEventTimeWindows.of(Time.minutes(5*1000000000), Time.minutes(1000000000))).apply(new WindowAverage()).keyBy(3).maxBy(2).setParallelism(1);
         MaxAverageDistanceStream.writeAsCsv("output/taskI");
         STREAM_EXECUTION_ENVIRONMENT.execute();
     }

@@ -27,7 +27,7 @@ public interface FootballStatistics {
     void writeAvertedGoalEvents() throws Exception;
 
     /**
-     * Highest average distance of player A1 (of Team A) ran in every 5 minutes duration. You can skip 1 minute duration between every two durations.
+     * Highest average distance of player A1 (of Team A) ran in every 5 minutes duration. You can skip output_taskI_part1 minute duration between every two durations.
      */
     void writeHighestAvgDistanceCovered() throws Exception;
 
